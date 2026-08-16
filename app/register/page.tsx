@@ -2,27 +2,30 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { register } from "@/app/src/api/auth";
+import { useRegister } from "@/app/src/hooks/useAuth";
+import { getErrorMessage } from "../src/lib/error";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const registerMutation = useRegister();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus(null);
-    setError(null);
 
-    try {
-      const data = await register(email, password);
-      setStatus(`Registered ${data.email} successfully. You can now log in.`);
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed.");
-    }
+    registerMutation.mutate(
+      { body: { email, password } },
+      {
+        onSuccess: (data) => {
+          setStatus(`Registered ${data.email} successfully. You can now log in.`);
+          setEmail("");
+          setPassword("");
+        },
+      }
+    );
   };
 
   return (
@@ -57,17 +60,23 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-900"
+            disabled={registerMutation.isPending}
+            className="w-full rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-900 disabled:opacity-50"
           >
-            Register
+            {registerMutation.isPending ? "Registering..." : "Register"}
           </button>
         </form>
 
         {status ? <p className="mt-4 text-sm text-emerald-600">{status}</p> : null}
-        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {registerMutation.isError ? (
+          <p className="mt-4 text-sm text-red-600">
+            {getErrorMessage(registerMutation.error, "Registration failed.")}
+
+          </p>
+        ) : null}
 
         <div className="mt-6 text-center text-sm text-zinc-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link className="font-semibold text-black hover:underline" href="/login">
             Log in
           </Link>

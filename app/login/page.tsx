@@ -2,28 +2,33 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { login } from "@/app/src/api/auth";
+import { useRouter } from "next/navigation";
+import { useLogin } from "@/app/src/hooks/useAuth";
+import { getErrorMessage } from "../src/lib/error";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const loginMutation = useLogin();
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
     setMessage(null);
 
-    try {
-      const data = await login(email, password);
-      localStorage.setItem("auth_token", data.access_token);
-      setMessage("Login successful. Your token is stored locally.");
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed.");
-    }
+    loginMutation.mutate(
+      { body: { username: email, password } },
+      {
+        onSuccess: () => {
+          setMessage("Login successful. Your token is stored locally.");
+          setEmail("");
+          setPassword("");
+        },
+      }
+    );
+    router.push("/")
   };
 
   return (
@@ -57,17 +62,22 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-900"
+            disabled={loginMutation.isPending}
+            className="w-full rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-900 disabled:opacity-50"
           >
-            Login
+            {loginMutation.isPending ? "Signing in..." : "Login"}
           </button>
         </form>
 
         {message ? <p className="mt-4 text-sm text-emerald-600">{message}</p> : null}
-        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {loginMutation.isError ? (
+          <p className="mt-4 text-sm text-red-600">
+            {getErrorMessage(loginMutation.error, "Login failed.")}
+          </p>
+        ) : null}
 
         <div className="mt-6 text-center text-sm text-zinc-600">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <Link className="font-semibold text-black hover:underline" href="/register">
             Register
           </Link>

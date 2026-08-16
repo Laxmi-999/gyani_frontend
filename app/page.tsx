@@ -1,33 +1,16 @@
 "use client";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createNote, deleteNote, fetchNotes } from "./src/lib/notes";
+import { useNotes, useCreateNote, useDeleteNote } from "@/app/src/hooks/useNotes";
 import { NoteForm } from "./src/components/NoteForm";
 import { NoteCard } from "./src/components/NoteCard";
-
+import { getErrorMessage } from "./src/lib/error";
 
 export default function NotesPage() {
   const [search, setSearch] = useState("");
-  const queryClient = useQueryClient();
 
-  const { data: notes, isLoading, isError } = useQuery({
-    queryKey: ["notes", search],
-    queryFn: () => fetchNotes(search || undefined),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    },
-  });
+  const { data: notes, isLoading, isError } = useNotes(search || undefined);
+  const createMutation = useCreateNote();
+  const deleteMutation = useDeleteNote();
 
   return (
     <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
@@ -41,9 +24,14 @@ export default function NotesPage() {
       />
 
       <NoteForm
-        onSubmit={(data) => createMutation.mutate(data)}
+        onSubmit={(data) => createMutation.mutate({ body: data })}
         isSubmitting={createMutation.isPending}
       />
+      {createMutation.isError ? (
+        <p className="text-sm text-red-600">
+          {getErrorMessage(createMutation.error, "Failed to create note.")}
+        </p>
+      ) : null}
 
       {isLoading && <p>Loading notes...</p>}
       {isError && <p className="text-red-600">Failed to load notes.</p>}
@@ -53,7 +41,7 @@ export default function NotesPage() {
           <NoteCard
             key={note.id}
             note={note}
-            onDelete={(id) => deleteMutation.mutate(id)}
+            onDelete={(id) => deleteMutation.mutate({ path: { note_id: id } })}
           />
         ))}
         {notes?.length === 0 && <p className="text-gray-500">No notes yet.</p>}
