@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createNoteNotesPostMutation, deleteNoteNotesNoteIdDeleteMutation, getNoteNotesNoteIdGetOptions, listNotesNotesGetOptions, updateNoteNotesNoteIdPatchMutation } from "../api/generated/@tanstack/react-query.gen";
-
-
-const notesListKey = ["listNotesNotesGet"];
+import { 
+  createNoteNotesPostMutation, 
+  deleteNoteNotesNoteIdDeleteMutation, 
+  getNoteNotesNoteIdGetOptions, 
+  listNotesNotesGetOptions, 
+  updateNoteNotesNoteIdPatchMutation 
+} from "../api/generated/@tanstack/react-query.gen";
 
 export function useNotes(search?: string) {
   return useQuery({
@@ -20,9 +23,11 @@ export function useCreateNote() {
   const queryClient = useQueryClient();
   return useMutation({
     ...createNoteNotesPostMutation(),
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notesListKey });
+      // ✅ Invalidates all queries starting with the generated listNotes key
+      queryClient.invalidateQueries({
+        queryKey: listNotesNotesGetOptions().queryKey,
+      });
     },
   });
 }
@@ -32,7 +37,10 @@ export function useUpdateNote() {
   return useMutation({
     ...updateNoteNotesNoteIdPatchMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notesListKey });
+      // ✅ Invalidates all queries starting with the generated listNotes key
+      queryClient.invalidateQueries({
+        queryKey: listNotesNotesGetOptions().queryKey,
+      });
     },
   });
 }
@@ -42,7 +50,10 @@ export function useDeleteNote() {
   return useMutation({
     ...deleteNoteNotesNoteIdDeleteMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notesListKey });
+      // ✅ Invalidates all queries starting with the generated listNotes key
+      queryClient.invalidateQueries({
+        queryKey: listNotesNotesGetOptions().queryKey,
+      });
     },
   });
 }
