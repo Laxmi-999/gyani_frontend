@@ -35,6 +35,50 @@ export type BodyLoginAuthLoginPost = {
 };
 
 /**
+ * Body_upload_file_files__post
+ */
+export type BodyUploadFileFilesPost = {
+    /**
+     * File
+     */
+    file: Blob | File;
+    /**
+     * Note Id
+     */
+    note_id?: number | null;
+};
+
+/**
+ * FileOut
+ */
+export type FileOut = {
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Owner Id
+     */
+    owner_id?: number | null;
+    /**
+     * Filename
+     */
+    filename: string;
+    /**
+     * Content Type
+     */
+    content_type: string;
+    /**
+     * File Size
+     */
+    file_size: number;
+    /**
+     * Uploaded At
+     */
+    uploaded_at: string;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -435,6 +479,107 @@ export type UpdateNoteNotesNoteIdPatchResponses = {
 };
 
 export type UpdateNoteNotesNoteIdPatchResponse = UpdateNoteNotesNoteIdPatchResponses[keyof UpdateNoteNotesNoteIdPatchResponses];
+
+export type ListFilesFilesGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/files/';
+};
+
+export type ListFilesFilesGetResponses = {
+    /**
+     * Response List Files Files  Get
+     *
+     * Successful Response
+     */
+    200: Array<FileOut>;
+};
+
+export type ListFilesFilesGetResponse = ListFilesFilesGetResponses[keyof ListFilesFilesGetResponses];
+
+export type UploadFileFilesPostData = {
+    body: BodyUploadFileFilesPost;
+    path?: never;
+    query?: never;
+    url: '/files/';
+};
+
+export type UploadFileFilesPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UploadFileFilesPostError = UploadFileFilesPostErrors[keyof UploadFileFilesPostErrors];
+
+export type UploadFileFilesPostResponses = {
+    /**
+     * Successful Response
+     */
+    201: FileOut;
+};
+
+export type UploadFileFilesPostResponse = UploadFileFilesPostResponses[keyof UploadFileFilesPostResponses];
+
+export type DownloadFileFilesFileIdDownloadGetData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: number;
+    };
+    query?: never;
+    url: '/files/{file_id}/download';
+};
+
+export type DownloadFileFilesFileIdDownloadGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DownloadFileFilesFileIdDownloadGetError = DownloadFileFilesFileIdDownloadGetErrors[keyof DownloadFileFilesFileIdDownloadGetErrors];
+
+export type DownloadFileFilesFileIdDownloadGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type DeleteFileFilesFileIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * File Id
+         */
+        file_id: number;
+    };
+    query?: never;
+    url: '/files/{file_id}';
+};
+
+export type DeleteFileFilesFileIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteFileFilesFileIdDeleteError = DeleteFileFilesFileIdDeleteErrors[keyof DeleteFileFilesFileIdDeleteErrors];
+
+export type DeleteFileFilesFileIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteFileFilesFileIdDeleteResponse = DeleteFileFilesFileIdDeleteResponses[keyof DeleteFileFilesFileIdDeleteResponses];
 
 export type HomeGetData = {
     body?: never;

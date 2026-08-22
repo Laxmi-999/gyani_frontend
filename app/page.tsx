@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useNotes, useCreateNote, useDeleteNote, useUpdateNote } from "@/app/src/hooks/useNotes";
+import { useDeleteFile, useDownloadFile, useFiles, useUploadFile } from "@/app/src/hooks/useFiles";
 import { useAuthCheck } from "@/app/src/hooks/useAuth";
 import { NoteForm } from "./src/components/NoteForm";
 import { NoteCard } from "./src/components/NoteCard";
 import { getErrorMessage } from "./src/lib/error";
+import { FileAttachments } from "./src/components/FileAttachments";
 
 export default function NotesPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthCheck();
@@ -15,6 +17,10 @@ export default function NotesPage() {
   const createMutation = useCreateNote();
   const deleteMutation = useDeleteNote();
   const updateMutation = useUpdateNote(); // <--- Add update mutation
+  const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useFiles();
+  const uploadFileMutation = useUploadFile();
+  const deleteFileMutation = useDeleteFile();
+  const downloadFileMutation = useDownloadFile();
 
   if (isAuthLoading || !isAuthenticated) {
     return (
@@ -43,6 +49,20 @@ export default function NotesPage() {
         <p className="text-sm text-red-600">
           {getErrorMessage(createMutation.error, "Failed to create note.")}
         </p>
+      ) : null}
+
+      <FileAttachments
+        files={files}
+        isLoading={isFilesLoading}
+        isUploading={uploadFileMutation.isPending}
+        isDeleting={deleteFileMutation.isPending}
+        isDownloading={downloadFileMutation.isPending}
+        onUpload={(file) => uploadFileMutation.mutate({ body: { file } })}
+        onDownload={(file) => downloadFileMutation.mutate(file)}
+        onDelete={(id) => deleteFileMutation.mutate({ path: { file_id: id } })}
+      />
+      {isFilesError || uploadFileMutation.isError || deleteFileMutation.isError || downloadFileMutation.isError ? (
+        <p className="text-sm text-red-600">Failed to process attachments.</p>
       ) : null}
 
       {isLoading && <p>Loading notes...</p>}

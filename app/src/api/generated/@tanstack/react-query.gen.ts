@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { createNoteNotesPost, deleteNoteNotesNoteIdDelete, getNoteNotesNoteIdGet, healthHealthGet, homeGet, listNotesNotesGet, loginAuthLoginPost, type Options, readCurrentUserAuthMeGet, refreshTokenAuthRefreshPost, registerAuthRegisterPost, updateNoteNotesNoteIdPatch } from '../sdk.gen';
-import type { CreateNoteNotesPostData, CreateNoteNotesPostError, CreateNoteNotesPostResponse, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteError, DeleteNoteNotesNoteIdDeleteResponse, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetError, GetNoteNotesNoteIdGetResponse, HealthHealthGetData, HomeGetData, ListNotesNotesGetData, ListNotesNotesGetError, ListNotesNotesGetResponse, LoginAuthLoginPostData, LoginAuthLoginPostError, LoginAuthLoginPostResponse, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponse, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostError, RefreshTokenAuthRefreshPostResponse, RegisterAuthRegisterPostData, RegisterAuthRegisterPostError, RegisterAuthRegisterPostResponse, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchError, UpdateNoteNotesNoteIdPatchResponse } from '../types.gen';
+import { createNoteNotesPost, deleteFileFilesFileIdDelete, deleteNoteNotesNoteIdDelete, downloadFileFilesFileIdDownloadGet, getNoteNotesNoteIdGet, healthHealthGet, homeGet, listFilesFilesGet, listNotesNotesGet, loginAuthLoginPost, type Options, readCurrentUserAuthMeGet, refreshTokenAuthRefreshPost, registerAuthRegisterPost, updateNoteNotesNoteIdPatch, uploadFileFilesPost } from '../sdk.gen';
+import type { CreateNoteNotesPostData, CreateNoteNotesPostError, CreateNoteNotesPostResponse, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteError, DeleteFileFilesFileIdDeleteResponse, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteError, DeleteNoteNotesNoteIdDeleteResponse, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetError, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetError, GetNoteNotesNoteIdGetResponse, HealthHealthGetData, HomeGetData, ListFilesFilesGetData, ListFilesFilesGetResponse, ListNotesNotesGetData, ListNotesNotesGetError, ListNotesNotesGetResponse, LoginAuthLoginPostData, LoginAuthLoginPostError, LoginAuthLoginPostResponse, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponse, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostError, RefreshTokenAuthRefreshPostResponse, RegisterAuthRegisterPostData, RegisterAuthRegisterPostError, RegisterAuthRegisterPostResponse, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchError, UpdateNoteNotesNoteIdPatchResponse, UploadFileFilesPostData, UploadFileFilesPostError, UploadFileFilesPostResponse } from '../types.gen';
 
 /**
  * Register
@@ -186,6 +186,76 @@ export const updateNoteNotesNoteIdPatchMutation = (options?: Partial<Options<Upd
     const mutationOptions: UseMutationOptions<UpdateNoteNotesNoteIdPatchResponse, AxiosError<UpdateNoteNotesNoteIdPatchError>, Options<UpdateNoteNotesNoteIdPatchData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await updateNoteNotesNoteIdPatch({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listFilesFilesGetQueryKey = (options?: Options<ListFilesFilesGetData>) => createQueryKey('listFilesFilesGet', options);
+
+/**
+ * List Files
+ */
+export const listFilesFilesGetOptions = (options?: Options<ListFilesFilesGetData>) => queryOptions<ListFilesFilesGetResponse, AxiosError<DefaultError>, ListFilesFilesGetResponse, ReturnType<typeof listFilesFilesGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listFilesFilesGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listFilesFilesGetQueryKey(options)
+});
+
+/**
+ * Upload File
+ */
+export const uploadFileFilesPostMutation = (options?: Partial<Options<UploadFileFilesPostData>>): UseMutationOptions<UploadFileFilesPostResponse, AxiosError<UploadFileFilesPostError>, Options<UploadFileFilesPostData>> => {
+    const mutationOptions: UseMutationOptions<UploadFileFilesPostResponse, AxiosError<UploadFileFilesPostError>, Options<UploadFileFilesPostData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadFileFilesPost({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const downloadFileFilesFileIdDownloadGetQueryKey = (options: Options<DownloadFileFilesFileIdDownloadGetData>) => createQueryKey('downloadFileFilesFileIdDownloadGet', options);
+
+/**
+ * Download File
+ */
+export const downloadFileFilesFileIdDownloadGetOptions = (options: Options<DownloadFileFilesFileIdDownloadGetData>) => queryOptions<unknown, AxiosError<DownloadFileFilesFileIdDownloadGetError>, unknown, ReturnType<typeof downloadFileFilesFileIdDownloadGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await downloadFileFilesFileIdDownloadGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: downloadFileFilesFileIdDownloadGetQueryKey(options)
+});
+
+/**
+ * Delete File
+ */
+export const deleteFileFilesFileIdDeleteMutation = (options?: Partial<Options<DeleteFileFilesFileIdDeleteData>>): UseMutationOptions<DeleteFileFilesFileIdDeleteResponse, AxiosError<DeleteFileFilesFileIdDeleteError>, Options<DeleteFileFilesFileIdDeleteData>> => {
+    const mutationOptions: UseMutationOptions<DeleteFileFilesFileIdDeleteResponse, AxiosError<DeleteFileFilesFileIdDeleteError>, Options<DeleteFileFilesFileIdDeleteData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteFileFilesFileIdDelete({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
