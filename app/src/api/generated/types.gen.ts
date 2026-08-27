@@ -76,6 +76,14 @@ export type FileOut = {
      * Uploaded At
      */
     uploaded_at: string;
+    /**
+     * Ocr Status
+     */
+    ocr_status?: string | null;
+    /**
+     * Extracted Text
+     */
+    extracted_text?: string | null;
 };
 
 /**

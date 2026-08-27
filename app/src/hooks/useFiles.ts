@@ -7,8 +7,24 @@ import {
 } from "../api/generated/@tanstack/react-query.gen";
 import type { FileOut } from "../api/generated/types.gen";
 
+// Extended interface to capture optional OCR status fields returned by backend
+type FileWithOcr = FileOut & {
+  ocr_status?: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | string | null;
+};
+
 export function useFiles() {
-  return useQuery({ ...listFilesFilesGetOptions() });
+  return useQuery({
+    ...listFilesFilesGetOptions(),
+    refetchInterval: (query) => {
+      const files = query.state.data as FileWithOcr[] | undefined;
+      // Auto-poll every 2s while any file is in PENDING or PROCESSING state
+      const isProcessing = files?.some((file) => {
+        const status = file.ocr_status?.toUpperCase();
+        return status === "PENDING" || status === "PROCESSING";
+      });
+      return isProcessing ? 2000 : false;
+    },
+  });
 }
 
 export function useUploadFile() {
