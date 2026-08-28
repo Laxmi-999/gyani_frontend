@@ -1,7 +1,8 @@
 "use client";
+
 import { useState } from "react";
+import { Search, NotebookPen } from "lucide-react";
 import { useNotes, useCreateNote, useDeleteNote, useUpdateNote } from "@/app/src/hooks/useNotes";
-import { useDeleteFile, useDownloadFile, useFiles, useUploadFile } from "@/app/src/hooks/useFiles";
 import { useAuthCheck } from "@/app/src/hooks/useAuth";
 import { NoteForm } from "./src/components/NoteForm";
 import { NoteCard } from "./src/components/NoteCard";
@@ -13,77 +14,121 @@ export default function NotesPage() {
   const [search, setSearch] = useState("");
 
   const { data: notes, isLoading, isError } = useNotes(search || undefined);
-  
+
   const createMutation = useCreateNote();
   const deleteMutation = useDeleteNote();
-  const updateMutation = useUpdateNote(); // <--- Add update mutation
-  const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useFiles();
-  const uploadFileMutation = useUploadFile();
-  const deleteFileMutation = useDeleteFile();
-  const downloadFileMutation = useDownloadFile();
+  const updateMutation = useUpdateNote();
 
   if (isAuthLoading || !isAuthenticated) {
     return (
-      <div className="max-w-2xl mx-auto p-6 flex justify-center items-center min-h-[300px]">
-        <p className="text-gray-500">Checking authentication...</p>
+      <div className="flex min-h-[300px] items-center justify-center p-6">
+        <div className="flex items-center gap-2 text-sm text-[#9a9a9f]">
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#33333a] border-t-[#e0a63a]" />
+          Checking authentication...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
-      <h1 className="text-xl font-medium">My notes</h1>
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 p-6 text-[#f2f2f0] lg:p-10">
+      {/* Header — full width */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <NotebookPen className="h-5 w-5 text-[#e0a63a]" strokeWidth={2} />
+          <h1 className="text-xl font-semibold tracking-tight">My notes</h1>
+          {notes && notes.length > 0 && (
+            <span className="ml-1 rounded-full bg-[#18181c] px-2 py-0.5 text-xs font-medium text-[#9a9a9f]">
+              {notes.length}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-[#6b6b70]">Capture ideas and keep them organized in one place.</p>
+      </div>
 
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search notes..."
-        className="border border-neutral-700 rounded px-3 py-2 bg-black text-white"
-      />
+      {/* Two-column body */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[380px_1fr]">
+        {/* Left rail — compose + attachments, sticky on scroll */}
+        <div className="flex flex-col gap-6 lg:sticky lg:top-8 lg:h-fit">
+          <div className="flex flex-col gap-2">
+            <NoteForm
+              onSubmit={(data) => createMutation.mutate({ body: data })}
+              isSubmitting={createMutation.isPending}
+            />
+            {createMutation.isError && (
+              <p className="text-sm text-[#ff6b6f]">
+                {getErrorMessage(createMutation.error, "Failed to create note.")}
+              </p>
+            )}
+          </div>
 
-      <NoteForm
-        onSubmit={(data) => createMutation.mutate({ body: data })}
-        isSubmitting={createMutation.isPending}
-      />
-      {createMutation.isError ? (
-        <p className="text-sm text-red-600">
-          {getErrorMessage(createMutation.error, "Failed to create note.")}
-        </p>
-      ) : null}
+          <div className="flex flex-col gap-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-[#6b6b70]">Attachments</h2>
+            <FileAttachments />
+          </div>
+        </div>
 
-      <FileAttachments
-        files={files}
-        isLoading={isFilesLoading}
-        isUploading={uploadFileMutation.isPending}
-        isDeleting={deleteFileMutation.isPending}
-        isDownloading={downloadFileMutation.isPending}
-        onUpload={(file) => uploadFileMutation.mutate({ body: { file } })}
-        onDownload={(file) => downloadFileMutation.mutate(file)}
-        onDelete={(id) => deleteFileMutation.mutate({ path: { file_id: id } })}
-      />
-      {isFilesError || uploadFileMutation.isError || deleteFileMutation.isError || downloadFileMutation.isError ? (
-        <p className="text-sm text-red-600">Failed to process attachments.</p>
-      ) : null}
+        {/* Right — search + notes grid */}
+        <div className="flex flex-col gap-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b6b70]" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search notes..."
+              className="w-full rounded-lg border border-[#242429] bg-[#131316] py-2.5 pl-10 pr-3 text-sm text-[#f2f2f0] placeholder:text-[#6b6b70] transition-colors focus:border-[#e0a63a]/60 focus:outline-none focus:ring-2 focus:ring-[#e0a63a]/20"
+            />
+          </div>
 
-      {isLoading && <p>Loading notes...</p>}
-      {isError && <p className="text-red-600">Failed to load notes.</p>}
+          {isLoading && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-32 animate-pulse rounded-lg border border-[#242429] bg-[#131316]"
+                />
+              ))}
+            </div>
+          )}
 
-      <div className="flex flex-col gap-3">
-        {notes?.map((note) => (
-          <NoteCard
-            key={note.id}
-            note={note}
-            onDelete={(id) => deleteMutation.mutate({ path: { note_id: id } })}
-            onUpdate={(id, updatedData) =>
-              updateMutation.mutate({
-                path: { note_id: id },
-                body: updatedData,
-              })
-            }
-            isUpdating={updateMutation.isPending}
-          />
-        ))}
-        {notes?.length === 0 && <p className="text-gray-500">No notes yet.</p>}
+          {isError && (
+            <div className="flex flex-col items-center gap-1 rounded-lg border border-[#3a2323] bg-[#1a1414] px-4 py-10 text-center">
+              <p className="text-sm font-medium text-[#ff6b6f]">Couldn't load your notes</p>
+              <p className="text-xs text-[#6b6b70]">Check your connection and try again.</p>
+            </div>
+          )}
+
+          {!isLoading && !isError && notes?.length === 0 && (
+            <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-[#242429] px-4 py-16 text-center">
+              <NotebookPen className="mb-2 h-6 w-6 text-[#33333a]" />
+              <p className="text-sm font-medium text-[#9a9a9f]">
+                {search ? "No notes match your search" : "No notes yet"}
+              </p>
+              <p className="text-xs text-[#6b6b70]">
+                {search ? "Try a different keyword." : "Add your first note to get started."}
+              </p>
+            </div>
+          )}
+
+          {notes && notes.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {notes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  onDelete={(id) => deleteMutation.mutate({ path: { note_id: id } })}
+                  onUpdate={(id, updatedData) =>
+                    updateMutation.mutate({
+                      path: { note_id: id },
+                      body: updatedData,
+                    })
+                  }
+                  isUpdating={updateMutation.isPending}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

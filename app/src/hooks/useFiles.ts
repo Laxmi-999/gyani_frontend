@@ -1,27 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../lib/api";
-import {
-  deleteFileFilesFileIdDeleteMutation,
-  listFilesFilesGetOptions,
-  uploadFileFilesPostMutation,
-} from "../api/generated/@tanstack/react-query.gen";
-import type { FileOut } from "../api/generated/types.gen";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Extended interface to capture optional OCR status fields returned by backend
-type FileWithOcr = FileOut & {
-  ocr_status?: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | string | null;
-};
+import { downloadFileFilesFileIdDownloadGet } from '../api/generated/sdk.gen';
+import type { FileOut } from '../api/generated/types.gen';
+import { deleteFileFilesFileIdDeleteMutation, listFilesFilesGetOptions, listFilesFilesGetQueryKey, uploadFileFilesPostMutation } from '../api/generated/@tanstack/react-query.gen';
 
 export function useFiles() {
   return useQuery({
     ...listFilesFilesGetOptions(),
+    // Auto-poll every 2 seconds if any file is pending or processing OCR/extraction
     refetchInterval: (query) => {
-      const files = query.state.data as FileWithOcr[] | undefined;
-      // Auto-poll every 2s while any file is in PENDING or PROCESSING state
-      const isProcessing = files?.some((file) => {
-        const status = file.ocr_status?.toUpperCase();
-        return status === "PENDING" || status === "PROCESSING";
-      });
+      const files = query.state.data as FileOut[] | undefined;
+      const isProcessing = files?.some(
+        (file) => file.ocr_status === 'pending' || file.ocr_status === 'processing'
+      );
       return isProcessing ? 2000 : false;
     },
   });
@@ -32,7 +23,10 @@ export function useUploadFile() {
   return useMutation({
     ...uploadFileFilesPostMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: listFilesFilesGetOptions().queryKey });
+      // Invalidate the generated file list query key
+      queryClient.invalidateQueries({
+        queryKey: listFilesFilesGetQueryKey(),
+      });
     },
   });
 }
@@ -42,7 +36,9 @@ export function useDeleteFile() {
   return useMutation({
     ...deleteFileFilesFileIdDeleteMutation(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: listFilesFilesGetOptions().queryKey });
+      queryClient.invalidateQueries({
+        queryKey: listFilesFilesGetQueryKey(),
+      });
     },
   });
 }
@@ -50,15 +46,22 @@ export function useDeleteFile() {
 export function useDownloadFile() {
   return useMutation({
     mutationFn: async (file: FileOut) => {
-      const response = await api.get<Blob>(`/files/${file.id}/download`, { responseType: "blob" });
-      const url = URL.createObjectURL(response.data);
-      const link = document.createElement("a");
+      const response = await downloadFileFilesFileIdDownloadGet({
+        path: { file_id: file.id },
+        // Ensure response is returned as blob/stream from Axios
+        responseType: 'blob',
+      });
+
+      // Handle browser blob download
+      const blob = new Blob([response.data as BlobPart], { type: file.content_type });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
       link.href = url;
-      link.download = file.filename;
+      link.setAttribute('download', file.filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
     },
   });
 }
