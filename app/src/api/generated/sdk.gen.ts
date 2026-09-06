@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
+import type { CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, GetTagsSummaryNotesTagsSummaryGetData, GetTagsSummaryNotesTagsSummaryGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetErrors, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -93,6 +93,18 @@ export const createNoteNotesPost = <ThrowOnError extends boolean = false>(option
 });
 
 /**
+ * Get Tags Summary
+ *
+ * Returns distinct entities aggregated by category for user notes.
+ */
+export const getTagsSummaryNotesTagsSummaryGet = <ThrowOnError extends boolean = false>(options?: Options<GetTagsSummaryNotesTagsSummaryGetData, ThrowOnError>): RequestResult<GetTagsSummaryNotesTagsSummaryGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<GetTagsSummaryNotesTagsSummaryGetResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notes/tags/summary',
+    ...options
+});
+
+/**
  * Delete Note
  */
 export const deleteNoteNotesNoteIdDelete = <ThrowOnError extends boolean = false>(options: Options<DeleteNoteNotesNoteIdDeleteData, ThrowOnError>): RequestResult<DeleteNoteNotesNoteIdDeleteResponses, DeleteNoteNotesNoteIdDeleteErrors, ThrowOnError> => (options.client ?? client).delete<DeleteNoteNotesNoteIdDeleteResponses, DeleteNoteNotesNoteIdDeleteErrors, ThrowOnError>({
@@ -127,8 +139,12 @@ export const updateNoteNotesNoteIdPatch = <ThrowOnError extends boolean = false>
 
 /**
  * List Files
+ *
+ * List all user files.
+ *
+ * Optionally filter by extracted entity text or entity type (e.g., ?entity=PERSON or ?entity=Kathmandu)
  */
-export const listFilesFilesGet = <ThrowOnError extends boolean = false>(options?: Options<ListFilesFilesGetData, ThrowOnError>): RequestResult<ListFilesFilesGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListFilesFilesGetResponses, unknown, ThrowOnError>({
+export const listFilesFilesGet = <ThrowOnError extends boolean = false>(options?: Options<ListFilesFilesGetData, ThrowOnError>): RequestResult<ListFilesFilesGetResponses, ListFilesFilesGetErrors, ThrowOnError> => (options?.client ?? client).get<ListFilesFilesGetResponses, ListFilesFilesGetErrors, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/files/',

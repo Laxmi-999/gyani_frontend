@@ -84,6 +84,12 @@ export type FileOut = {
      * Extracted Text
      */
     extracted_text?: string | null;
+    /**
+     * Entities
+     */
+    entities?: {
+        [key: string]: unknown;
+    } | null;
 };
 
 /**
@@ -123,6 +129,10 @@ export type NoteOut = {
      */
     id: number;
     /**
+     * Owner Id
+     */
+    owner_id: number;
+    /**
      * Title
      */
     title: string;
@@ -133,7 +143,21 @@ export type NoteOut = {
     /**
      * Tags
      */
-    tags: string | null;
+    tags?: string | null;
+    /**
+     * Entities
+     */
+    entities?: {
+        [key: string]: Array<string>;
+    } | null;
+    /**
+     * Auto Tags
+     */
+    auto_tags?: Array<string> | null;
+    /**
+     * Source File Id
+     */
+    source_file_id?: number | null;
     /**
      * Created At
      */
@@ -151,7 +175,7 @@ export type NoteUpdate = {
     /**
      * Title
      */
-    title: string;
+    title?: string | null;
     /**
      * Content
      */
@@ -349,6 +373,12 @@ export type ListNotesNotesGetData = {
          * Q
          */
         q?: string | null;
+        /**
+         * Tag
+         *
+         * Filter by extracted entity tag
+         */
+        tag?: string | null;
     };
     url: '/notes/';
 };
@@ -397,6 +427,20 @@ export type CreateNoteNotesPostResponses = {
 };
 
 export type CreateNoteNotesPostResponse = CreateNoteNotesPostResponses[keyof CreateNoteNotesPostResponses];
+
+export type GetTagsSummaryNotesTagsSummaryGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notes/tags/summary';
+};
+
+export type GetTagsSummaryNotesTagsSummaryGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type DeleteNoteNotesNoteIdDeleteData = {
     body?: never;
@@ -491,9 +535,23 @@ export type UpdateNoteNotesNoteIdPatchResponse = UpdateNoteNotesNoteIdPatchRespo
 export type ListFilesFilesGetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Entity
+         */
+        entity?: string | null;
+    };
     url: '/files/';
 };
+
+export type ListFilesFilesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListFilesFilesGetError = ListFilesFilesGetErrors[keyof ListFilesFilesGetErrors];
 
 export type ListFilesFilesGetResponses = {
     /**

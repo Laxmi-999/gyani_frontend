@@ -2,7 +2,9 @@ export interface Note {
   id: number;
   title: string;
   content: string;
-  tags: string | null;
+  tags?: string | null;
+  entities?: Record<string, string[]> | null;
+  source_file_id?: number | null;
   created_at: string;
   updated_at: string;
 }

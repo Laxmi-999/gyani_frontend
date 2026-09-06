@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { createNoteNotesPost, deleteFileFilesFileIdDelete, deleteNoteNotesNoteIdDelete, downloadFileFilesFileIdDownloadGet, getNoteNotesNoteIdGet, healthHealthGet, homeGet, listFilesFilesGet, listNotesNotesGet, loginAuthLoginPost, type Options, readCurrentUserAuthMeGet, refreshTokenAuthRefreshPost, registerAuthRegisterPost, updateNoteNotesNoteIdPatch, uploadFileFilesPost } from '../sdk.gen';
-import type { CreateNoteNotesPostData, CreateNoteNotesPostError, CreateNoteNotesPostResponse, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteError, DeleteFileFilesFileIdDeleteResponse, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteError, DeleteNoteNotesNoteIdDeleteResponse, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetError, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetError, GetNoteNotesNoteIdGetResponse, HealthHealthGetData, HomeGetData, ListFilesFilesGetData, ListFilesFilesGetResponse, ListNotesNotesGetData, ListNotesNotesGetError, ListNotesNotesGetResponse, LoginAuthLoginPostData, LoginAuthLoginPostError, LoginAuthLoginPostResponse, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponse, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostError, RefreshTokenAuthRefreshPostResponse, RegisterAuthRegisterPostData, RegisterAuthRegisterPostError, RegisterAuthRegisterPostResponse, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchError, UpdateNoteNotesNoteIdPatchResponse, UploadFileFilesPostData, UploadFileFilesPostError, UploadFileFilesPostResponse } from '../types.gen';
+import { createNoteNotesPost, deleteFileFilesFileIdDelete, deleteNoteNotesNoteIdDelete, downloadFileFilesFileIdDownloadGet, getNoteNotesNoteIdGet, getTagsSummaryNotesTagsSummaryGet, healthHealthGet, homeGet, listFilesFilesGet, listNotesNotesGet, loginAuthLoginPost, type Options, readCurrentUserAuthMeGet, refreshTokenAuthRefreshPost, registerAuthRegisterPost, updateNoteNotesNoteIdPatch, uploadFileFilesPost } from '../sdk.gen';
+import type { CreateNoteNotesPostData, CreateNoteNotesPostError, CreateNoteNotesPostResponse, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteError, DeleteFileFilesFileIdDeleteResponse, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteError, DeleteNoteNotesNoteIdDeleteResponse, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetError, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetError, GetNoteNotesNoteIdGetResponse, GetTagsSummaryNotesTagsSummaryGetData, HealthHealthGetData, HomeGetData, ListFilesFilesGetData, ListFilesFilesGetError, ListFilesFilesGetResponse, ListNotesNotesGetData, ListNotesNotesGetError, ListNotesNotesGetResponse, LoginAuthLoginPostData, LoginAuthLoginPostError, LoginAuthLoginPostResponse, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponse, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostError, RefreshTokenAuthRefreshPostResponse, RegisterAuthRegisterPostData, RegisterAuthRegisterPostError, RegisterAuthRegisterPostResponse, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchError, UpdateNoteNotesNoteIdPatchResponse, UploadFileFilesPostData, UploadFileFilesPostError, UploadFileFilesPostResponse } from '../types.gen';
 
 /**
  * Register
@@ -144,6 +144,26 @@ export const createNoteNotesPostMutation = (options?: Partial<Options<CreateNote
     return mutationOptions;
 };
 
+export const getTagsSummaryNotesTagsSummaryGetQueryKey = (options?: Options<GetTagsSummaryNotesTagsSummaryGetData>) => createQueryKey('getTagsSummaryNotesTagsSummaryGet', options);
+
+/**
+ * Get Tags Summary
+ *
+ * Returns distinct entities aggregated by category for user notes.
+ */
+export const getTagsSummaryNotesTagsSummaryGetOptions = (options?: Options<GetTagsSummaryNotesTagsSummaryGetData>) => queryOptions<unknown, AxiosError<DefaultError>, unknown, ReturnType<typeof getTagsSummaryNotesTagsSummaryGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getTagsSummaryNotesTagsSummaryGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getTagsSummaryNotesTagsSummaryGetQueryKey(options)
+});
+
 /**
  * Delete Note
  */
@@ -200,8 +220,12 @@ export const listFilesFilesGetQueryKey = (options?: Options<ListFilesFilesGetDat
 
 /**
  * List Files
+ *
+ * List all user files.
+ *
+ * Optionally filter by extracted entity text or entity type (e.g., ?entity=PERSON or ?entity=Kathmandu)
  */
-export const listFilesFilesGetOptions = (options?: Options<ListFilesFilesGetData>) => queryOptions<ListFilesFilesGetResponse, AxiosError<DefaultError>, ListFilesFilesGetResponse, ReturnType<typeof listFilesFilesGetQueryKey>>({
+export const listFilesFilesGetOptions = (options?: Options<ListFilesFilesGetData>) => queryOptions<ListFilesFilesGetResponse, AxiosError<ListFilesFilesGetError>, ListFilesFilesGetResponse, ReturnType<typeof listFilesFilesGetQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
         const { data } = await listFilesFilesGet({
             ...options,

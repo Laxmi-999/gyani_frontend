@@ -3,6 +3,7 @@ import {
   createNoteNotesPostMutation, 
   deleteNoteNotesNoteIdDeleteMutation, 
   getNoteNotesNoteIdGetOptions, 
+  listFilesFilesGetQueryKey, 
   listNotesNotesGetOptions, 
   updateNoteNotesNoteIdPatchMutation 
 } from "../api/generated/@tanstack/react-query.gen";
@@ -24,7 +25,6 @@ export function useCreateNote() {
   return useMutation({
     ...createNoteNotesPostMutation(),
     onSuccess: () => {
-      // ✅ Invalidates all queries starting with the generated listNotes key
       queryClient.invalidateQueries({
         queryKey: listNotesNotesGetOptions().queryKey,
       });
@@ -37,7 +37,6 @@ export function useUpdateNote() {
   return useMutation({
     ...updateNoteNotesNoteIdPatchMutation(),
     onSuccess: () => {
-      // ✅ Invalidates all queries starting with the generated listNotes key
       queryClient.invalidateQueries({
         queryKey: listNotesNotesGetOptions().queryKey,
       });
@@ -50,9 +49,12 @@ export function useDeleteNote() {
   return useMutation({
     ...deleteNoteNotesNoteIdDeleteMutation(),
     onSuccess: () => {
-      // ✅ Invalidates all queries starting with the generated listNotes key
       queryClient.invalidateQueries({
         queryKey: listNotesNotesGetOptions().queryKey,
+      });
+      // Invalidate files so attached statuses update accordingly
+      queryClient.invalidateQueries({
+        queryKey: listFilesFilesGetQueryKey(),
       });
     },
   });

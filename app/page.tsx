@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Search, NotebookPen } from "lucide-react";
-import { useNotes, useCreateNote, useDeleteNote, useUpdateNote } from "@/app/src/hooks/useNotes";
+import { Search, NotebookPen, Tag, X } from "lucide-react";
+import {
+  useNotes,
+  useCreateNote,
+  useDeleteNote,
+  useUpdateNote,
+} from "@/app/src/hooks/useNotes";
 import { useAuthCheck } from "@/app/src/hooks/useAuth";
 import { NoteForm } from "./src/components/NoteForm";
 import { NoteCard } from "./src/components/NoteCard";
@@ -12,12 +17,24 @@ import { FileAttachments } from "./src/components/FileAttachments";
 export default function NotesPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthCheck();
   const [search, setSearch] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  const { data: notes, isLoading, isError } = useNotes(search || undefined);
+  // Pass active search query or selected tag to hook
+  const activeQuery = selectedTag || search || undefined;
+  const { data: notes, isLoading, isError } = useNotes(activeQuery);
 
   const createMutation = useCreateNote();
   const deleteMutation = useDeleteNote();
   const updateMutation = useUpdateNote();
+
+  const handleTagSelect = (tag: string) => {
+    if (selectedTag === tag) {
+      setSelectedTag(null);
+    } else {
+      setSelectedTag(tag);
+      setSearch(""); // Reset search bar if tag clicked
+    }
+  };
 
   if (isAuthLoading || !isAuthenticated) {
     return (
@@ -43,7 +60,9 @@ export default function NotesPage() {
             </span>
           )}
         </div>
-        <p className="text-sm text-[#6b6b70]">Capture ideas and keep them organized in one place.</p>
+        <p className="text-sm text-[#6b6b70]">
+          Capture ideas and keep them organized in one place.
+        </p>
       </div>
 
       {/* Two-column body */}
@@ -57,27 +76,52 @@ export default function NotesPage() {
             />
             {createMutation.isError && (
               <p className="text-sm text-[#ff6b6f]">
-                {getErrorMessage(createMutation.error, "Failed to create note.")}
+                {getErrorMessage(
+                  createMutation.error,
+                  "Failed to create note."
+                )}
               </p>
             )}
           </div>
 
           <div className="flex flex-col gap-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-[#6b6b70]">Attachments</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-[#6b6b70]">
+              Attachments
+            </h2>
             <FileAttachments />
           </div>
         </div>
 
-        {/* Right — search + notes grid */}
+        {/* Right — search + filter bar + notes grid */}
         <div className="flex flex-col gap-5">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b6b70]" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search notes..."
-              className="w-full rounded-lg border border-[#242429] bg-[#131316] py-2.5 pl-10 pr-3 text-sm text-[#f2f2f0] placeholder:text-[#6b6b70] transition-colors focus:border-[#e0a63a]/60 focus:outline-none focus:ring-2 focus:ring-[#e0a63a]/20"
-            />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6b6b70]" />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  if (selectedTag) setSelectedTag(null);
+                }}
+                placeholder="Search notes or tags..."
+                className="w-full rounded-lg border border-[#242429] bg-[#131316] py-2.5 pl-10 pr-3 text-sm text-[#f2f2f0] placeholder:text-[#6b6b70] transition-colors focus:border-[#e0a63a]/60 focus:outline-none focus:ring-2 focus:ring-[#e0a63a]/20"
+              />
+            </div>
+
+            {/* Active Tag Pill Indicator */}
+            {selectedTag && (
+              <div className="flex items-center gap-1.5 rounded-lg border border-[#e0a63a]/40 bg-[#e0a63a]/10 px-3 py-2 text-xs font-medium text-[#e0a63a]">
+                <Tag className="h-3.5 w-3.5" />
+                <span>Tag: {selectedTag}</span>
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className="ml-1 rounded p-0.5 hover:bg-[#e0a63a]/20"
+                  title="Clear tag filter"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {isLoading && (
@@ -93,8 +137,12 @@ export default function NotesPage() {
 
           {isError && (
             <div className="flex flex-col items-center gap-1 rounded-lg border border-[#3a2323] bg-[#1a1414] px-4 py-10 text-center">
-              <p className="text-sm font-medium text-[#ff6b6f]">Couldn't load your notes</p>
-              <p className="text-xs text-[#6b6b70]">Check your connection and try again.</p>
+              <p className="text-sm font-medium text-[#ff6b6f]">
+                Couldn't load your notes
+              </p>
+              <p className="text-xs text-[#6b6b70]">
+                Check your connection and try again.
+              </p>
             </div>
           )}
 
@@ -102,10 +150,12 @@ export default function NotesPage() {
             <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-[#242429] px-4 py-16 text-center">
               <NotebookPen className="mb-2 h-6 w-6 text-[#33333a]" />
               <p className="text-sm font-medium text-[#9a9a9f]">
-                {search ? "No notes match your search" : "No notes yet"}
+                {activeQuery ? "No notes match your filter" : "No notes yet"}
               </p>
               <p className="text-xs text-[#6b6b70]">
-                {search ? "Try a different keyword." : "Add your first note to get started."}
+                {activeQuery
+                  ? "Try searching for a different term or clearing tag filters."
+                  : "Add your first note or upload an attachment to get started."}
               </p>
             </div>
           )}
@@ -116,7 +166,11 @@ export default function NotesPage() {
                 <NoteCard
                   key={note.id}
                   note={note}
-                  onDelete={(id) => deleteMutation.mutate({ path: { note_id: id } })}
+                  activeTag={selectedTag || undefined}
+                  onTagClick={handleTagSelect}
+                  onDelete={(id) =>
+                    deleteMutation.mutate({ path: { note_id: id } })
+                  }
                   onUpdate={(id, updatedData) =>
                     updateMutation.mutate({
                       path: { note_id: id },
