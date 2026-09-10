@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, GetTagsSummaryNotesTagsSummaryGetData, GetTagsSummaryNotesTagsSummaryGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetErrors, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
+import type { CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, GetTagsSummaryNotesTagsSummaryGetData, GetTagsSummaryNotesTagsSummaryGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetErrors, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, SearchNotesNotesSearchGetData, SearchNotesNotesSearchGetErrors, SearchNotesNotesSearchGetResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -135,6 +135,18 @@ export const updateNoteNotesNoteIdPatch = <ThrowOnError extends boolean = false>
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Search Notes
+ *
+ * Search notes using either Pure Semantic Search or Hybrid Search (Vector + Full-Text Keyword).
+ */
+export const searchNotesNotesSearchGet = <ThrowOnError extends boolean = false>(options: Options<SearchNotesNotesSearchGetData, ThrowOnError>): RequestResult<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError> => (options.client ?? client).get<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notes/search',
+    ...options
 });
 
 /**

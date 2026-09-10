@@ -5,6 +5,7 @@ import {
   getNoteNotesNoteIdGetOptions, 
   listFilesFilesGetQueryKey, 
   listNotesNotesGetOptions, 
+  searchNotesNotesSearchGetOptions, 
   updateNoteNotesNoteIdPatchMutation 
 } from "../api/generated/@tanstack/react-query.gen";
 
@@ -32,6 +33,7 @@ export function useCreateNote() {
   });
 }
 
+
 export function useUpdateNote() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -57,5 +59,14 @@ export function useDeleteNote() {
         queryKey: listFilesFilesGetQueryKey(),
       });
     },
+  });
+}
+
+export function useSearchNotes(q: string, type: "hybrid" | "semantic" = "hybrid") {
+  return useQuery({
+    ...searchNotesNotesSearchGetOptions({
+      query: { q, type, limit: 10 },
+    }),
+    enabled: q.trim().length > 0, // Only fire request when search input is not empty
   });
 }

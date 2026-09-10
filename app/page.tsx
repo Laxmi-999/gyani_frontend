@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Search, NotebookPen, Tag, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, NotebookPen, Tag, X, Sparkles } from "lucide-react";
 import {
   useNotes,
+  useSearchNotes,
   useCreateNote,
   useDeleteNote,
   useUpdateNote,
@@ -17,22 +18,60 @@ import { FileAttachments } from "./src/components/FileAttachments";
 export default function NotesPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthCheck();
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [searchType, setSearchType] = useState<"hybrid" | "semantic">("hybrid");
 
-  // Pass active search query or selected tag to hook
-  const activeQuery = selectedTag || search || undefined;
-  const { data: notes, isLoading, isError } = useNotes(activeQuery);
+  // Debounce the search input — only fire the search 3s after typing stops.
+  // Clearing the box resets immediately so the default list comes back fast.
+  useEffect(() => {
+    const trimmed = search.trim();
+
+    if (trimmed === "") {
+      setDebouncedSearch("");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDebouncedSearch(trimmed);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const isSearchActive = debouncedSearch.length > 0;
+  const isTyping = search.trim().length > 0 && debouncedSearch !== search.trim();
+
+  // Standard list — used for the default view and tag filtering
+  const {
+    data: defaultNotes,
+    isLoading: isDefaultLoading,
+    isError: isDefaultError,
+  } = useNotes(selectedTag || undefined);
+
+  // Hybrid/semantic vector search — driven by the debounced value
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+  } = useSearchNotes(debouncedSearch, searchType);
 
   const createMutation = useCreateNote();
   const deleteMutation = useDeleteNote();
   const updateMutation = useUpdateNote();
+
+  const isLoading = isSearchActive ? isSearchLoading : isDefaultLoading;
+  const isError = isSearchActive ? isSearchError : isDefaultError;
+
+  const notes = isSearchActive ? searchData?.results ?? [] : defaultNotes ?? [];
 
   const handleTagSelect = (tag: string) => {
     if (selectedTag === tag) {
       setSelectedTag(null);
     } else {
       setSelectedTag(tag);
-      setSearch(""); // Reset search bar if tag clicked
+      setSearch("");
+      setDebouncedSearch("");
     }
   };
 
@@ -103,12 +142,45 @@ export default function NotesPage() {
                   setSearch(e.target.value);
                   if (selectedTag) setSelectedTag(null);
                 }}
-                placeholder="Search notes or tags..."
-                className="w-full rounded-lg border border-[#242429] bg-[#131316] py-2.5 pl-10 pr-3 text-sm text-[#f2f2f0] placeholder:text-[#6b6b70] transition-colors focus:border-[#e0a63a]/60 focus:outline-none focus:ring-2 focus:ring-[#e0a63a]/20"
+                placeholder="Search notes semantically or by keywords..."
+                className="w-full rounded-lg border border-[#242429] bg-[#131316] py-2.5 pl-10 pr-8 text-sm text-[#f2f2f0] placeholder:text-[#6b6b70] transition-colors focus:border-[#e0a63a]/60 focus:outline-none focus:ring-2 focus:ring-[#e0a63a]/20"
               />
+              {isTyping && (
+                <span
+                  className="pointer-events-none absolute right-3 top-1/2 h-2 w-2 -translate-y-1/2 animate-pulse rounded-full bg-[#e0a63a]/70"
+                  title="Waiting for you to stop typing..."
+                />
+              )}
             </div>
 
-            {/* Active Tag Pill Indicator */}
+            {/* Search mode switcher — only shown while actively searching */}
+            {isSearchActive && (
+              <div className="flex items-center gap-1 rounded-lg border border-[#242429] bg-[#131316] p-1">
+                <button
+                  onClick={() => setSearchType("hybrid")}
+                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                    searchType === "hybrid"
+                      ? "bg-[#242429] text-[#e0a63a]"
+                      : "text-[#6b6b70] hover:text-[#f2f2f0]"
+                  }`}
+                >
+                  Hybrid
+                </button>
+                <button
+                  onClick={() => setSearchType("semantic")}
+                  className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                    searchType === "semantic"
+                      ? "bg-[#242429] text-[#e0a63a]"
+                      : "text-[#6b6b70] hover:text-[#f2f2f0]"
+                  }`}
+                >
+                  <Sparkles className="h-3 w-3" />
+                  Semantic
+                </button>
+              </div>
+            )}
+
+            {/* Active tag pill indicator */}
             {selectedTag && (
               <div className="flex items-center gap-1.5 rounded-lg border border-[#e0a63a]/40 bg-[#e0a63a]/10 px-3 py-2 text-xs font-medium text-[#e0a63a]">
                 <Tag className="h-3.5 w-3.5" />
@@ -138,7 +210,7 @@ export default function NotesPage() {
           {isError && (
             <div className="flex flex-col items-center gap-1 rounded-lg border border-[#3a2323] bg-[#1a1414] px-4 py-10 text-center">
               <p className="text-sm font-medium text-[#ff6b6f]">
-                Couldn't load your notes
+                {isSearchActive ? "Search failed" : "Couldn't load your notes"}
               </p>
               <p className="text-xs text-[#6b6b70]">
                 Check your connection and try again.
@@ -150,11 +222,13 @@ export default function NotesPage() {
             <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-[#242429] px-4 py-16 text-center">
               <NotebookPen className="mb-2 h-6 w-6 text-[#33333a]" />
               <p className="text-sm font-medium text-[#9a9a9f]">
-                {activeQuery ? "No notes match your filter" : "No notes yet"}
+                {isSearchActive || selectedTag
+                  ? "No notes match your filter"
+                  : "No notes yet"}
               </p>
               <p className="text-xs text-[#6b6b70]">
-                {activeQuery
-                  ? "Try searching for a different term or clearing tag filters."
+                {isSearchActive || selectedTag
+                  ? "Try a different term, switch search mode, or clear tag filters."
                   : "Add your first note or upload an attachment to get started."}
               </p>
             </div>
@@ -162,10 +236,11 @@ export default function NotesPage() {
 
           {notes && notes.length > 0 && (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {notes.map((note) => (
+              {notes.map((note: any) => (
                 <NoteCard
                   key={note.id}
                   note={note}
+                  score={isSearchActive ? note.score : undefined}
                   activeTag={selectedTag || undefined}
                   onTagClick={handleTagSelect}
                   onDelete={(id) =>

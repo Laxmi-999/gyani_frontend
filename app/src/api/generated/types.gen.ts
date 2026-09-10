@@ -169,6 +169,38 @@ export type NoteOut = {
 };
 
 /**
+ * NoteSearchResult
+ */
+export type NoteSearchResult = {
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Content
+     */
+    content?: string | null;
+    /**
+     * Entities
+     */
+    entities?: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Auto Tags
+     */
+    auto_tags?: Array<string> | null;
+    /**
+     * Similarity Score
+     */
+    similarity_score: number;
+};
+
+/**
  * NoteUpdate
  */
 export type NoteUpdate = {
@@ -195,6 +227,30 @@ export type RefreshTokenRequest = {
      */
     refresh_token: string;
 };
+
+/**
+ * SearchResponse
+ */
+export type SearchResponse = {
+    /**
+     * Query
+     */
+    query: string;
+    search_type: SearchType;
+    /**
+     * Total
+     */
+    total: number;
+    /**
+     * Results
+     */
+    results: Array<NoteSearchResult>;
+};
+
+/**
+ * SearchType
+ */
+export type SearchType = 'semantic' | 'hybrid';
 
 /**
  * Token
@@ -531,6 +587,48 @@ export type UpdateNoteNotesNoteIdPatchResponses = {
 };
 
 export type UpdateNoteNotesNoteIdPatchResponse = UpdateNoteNotesNoteIdPatchResponses[keyof UpdateNoteNotesNoteIdPatchResponses];
+
+export type SearchNotesNotesSearchGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Q
+         *
+         * Search query string
+         */
+        q: string;
+        /**
+         * 'semantic' for pure vector, 'hybrid' for vector + keyword
+         */
+        type?: SearchType;
+        /**
+         * Limit
+         *
+         * Max results to return
+         */
+        limit?: number;
+    };
+    url: '/notes/search';
+};
+
+export type SearchNotesNotesSearchGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SearchNotesNotesSearchGetError = SearchNotesNotesSearchGetErrors[keyof SearchNotesNotesSearchGetErrors];
+
+export type SearchNotesNotesSearchGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SearchResponse;
+};
+
+export type SearchNotesNotesSearchGetResponse = SearchNotesNotesSearchGetResponses[keyof SearchNotesNotesSearchGetResponses];
 
 export type ListFilesFilesGetData = {
     body?: never;

@@ -13,11 +13,13 @@ import {
   Calendar,
   Tag as TagIcon,
   FileText,
+  Sparkles,
 } from "lucide-react";
 import type { Note } from "../types/note";
 
 interface NoteCardProps {
   note: Note;
+  score?: number;
   onDelete: (id: number) => void;
   onUpdate: (
     id: number,
@@ -66,6 +68,7 @@ const entityBadgeConfig: Record<
 
 export function NoteCard({
   note,
+  score,
   onDelete,
   onUpdate,
   isUpdating,
@@ -154,6 +157,15 @@ export function NoteCard({
           <h3 className="font-semibold leading-tight text-[#f2f2f0] truncate">
             {note.title}
           </h3>
+          {score !== undefined && (
+            <span
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e0a63a]/30 bg-[#e0a63a]/10 px-2 py-0.5 text-[10px] font-medium text-[#e0a63a]"
+              title="Search relevance score"
+            >
+              <Sparkles className="h-2.5 w-2.5" />
+              {(score * 100).toFixed(0)}%
+            </span>
+          )}
         </div>
 
         {confirmingDelete ? (
@@ -252,7 +264,7 @@ export function NoteCard({
                   <span>{item}</span>
                 </button>
               );
-            })
+            });
           })}
         </div>
       )}
