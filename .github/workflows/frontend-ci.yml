@@ -46,6 +46,14 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-workspace
 
+      # 6.5 Run type check and linting
+
+      - name: Run Typescript Check
+        run: pnpm exec  tsc --noEmit
+
+      - name: Run ESLint
+        run:  pnpm run lint
+
       # 7. Build Next.js application
       - name: Build Application
         run: pnpm run build
