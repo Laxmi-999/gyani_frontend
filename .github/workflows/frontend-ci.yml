@@ -10,11 +10,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # Tells GitHub Actions to run commands inside the 'client' folder
-    defaults:
-      run:
-        working-directory: ./client
-
     steps:
       # 1. Pull the repository code
       - name: Checkout Repository
@@ -26,18 +21,31 @@ jobs:
         with:
           version: 9
 
-      # 3. Setup Node.js with pnpm caching targeting the client directory
+      # 3. Setup Node.js 22 LTS
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: 'client/pnpm-lock.yaml'
 
-      # 4. Install dependencies using pnpm
+      # 4. Get pnpm store directory for caching
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      # 5. Cache pnpm dependencies cleanly
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # 6. Install dependencies using pnpm
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-workspace
 
-      # 5. Build Next.js application
+      # 7. Build Next.js application
       - name: Build Application
         run: pnpm run build
