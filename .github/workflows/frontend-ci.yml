@@ -1,0 +1,43 @@
+name: Frontend CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Tells GitHub Actions to run commands inside the 'client' folder
+    defaults:
+      run:
+        working-directory: ./client
+
+    steps:
+      # 1. Pull the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup pnpm CLI
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      # 3. Setup Node.js with pnpm caching targeting the client directory
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: 'client/pnpm-lock.yaml'
+
+      # 4. Install dependencies using pnpm
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. Build Next.js application
+      - name: Build Application
+        run: pnpm run build
