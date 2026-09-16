@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, GetTagsSummaryNotesTagsSummaryGetData, GetTagsSummaryNotesTagsSummaryGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetErrors, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, SearchNotesNotesSearchGetData, SearchNotesNotesSearchGetErrors, SearchNotesNotesSearchGetResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
+import type { ChatWithNotesNotesChatPostData, ChatWithNotesNotesChatPostErrors, ChatWithNotesNotesChatPostResponses, CreateNoteNotesPostData, CreateNoteNotesPostErrors, CreateNoteNotesPostResponses, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteErrors, DeleteFileFilesFileIdDeleteResponses, DeleteNoteNotesNoteIdDeleteData, DeleteNoteNotesNoteIdDeleteErrors, DeleteNoteNotesNoteIdDeleteResponses, DownloadFileFilesFileIdDownloadGetData, DownloadFileFilesFileIdDownloadGetErrors, DownloadFileFilesFileIdDownloadGetResponses, GetNoteNotesNoteIdGetData, GetNoteNotesNoteIdGetErrors, GetNoteNotesNoteIdGetResponses, GetTagsSummaryNotesTagsSummaryGetData, GetTagsSummaryNotesTagsSummaryGetResponses, HealthHealthGetData, HealthHealthGetResponses, HomeGetData, HomeGetResponses, ListFilesFilesGetData, ListFilesFilesGetErrors, ListFilesFilesGetResponses, ListNotesNotesGetData, ListNotesNotesGetErrors, ListNotesNotesGetResponses, LoginAuthLoginPostData, LoginAuthLoginPostErrors, LoginAuthLoginPostResponses, ReadCurrentUserAuthMeGetData, ReadCurrentUserAuthMeGetResponses, RefreshTokenAuthRefreshPostData, RefreshTokenAuthRefreshPostErrors, RefreshTokenAuthRefreshPostResponses, RegisterAuthRegisterPostData, RegisterAuthRegisterPostErrors, RegisterAuthRegisterPostResponses, SearchNotesNotesSearchGetData, SearchNotesNotesSearchGetErrors, SearchNotesNotesSearchGetResponses, UpdateNoteNotesNoteIdPatchData, UpdateNoteNotesNoteIdPatchErrors, UpdateNoteNotesNoteIdPatchResponses, UploadFileFilesPostData, UploadFileFilesPostErrors, UploadFileFilesPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -105,6 +105,35 @@ export const getTagsSummaryNotesTagsSummaryGet = <ThrowOnError extends boolean =
 });
 
 /**
+ * Search Notes
+ *
+ * Search notes using either Pure Semantic Search or Hybrid Search (Vector + Full-Text Keyword).
+ */
+export const searchNotesNotesSearchGet = <ThrowOnError extends boolean = false>(options: Options<SearchNotesNotesSearchGetData, ThrowOnError>): RequestResult<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError> => (options.client ?? client).get<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notes/search',
+    ...options
+});
+
+/**
+ * Chat With Notes
+ *
+ * RAG Endpoint: Retrieves top 5 relevant notes for the user's question,
+ * constructs an anti-hallucination prompt, and calls Groq Llama 3.3.
+ */
+export const chatWithNotesNotesChatPost = <ThrowOnError extends boolean = false>(options: Options<ChatWithNotesNotesChatPostData, ThrowOnError>): RequestResult<ChatWithNotesNotesChatPostResponses, ChatWithNotesNotesChatPostErrors, ThrowOnError> => (options.client ?? client).post<ChatWithNotesNotesChatPostResponses, ChatWithNotesNotesChatPostErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notes/chat',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Delete Note
  */
 export const deleteNoteNotesNoteIdDelete = <ThrowOnError extends boolean = false>(options: Options<DeleteNoteNotesNoteIdDeleteData, ThrowOnError>): RequestResult<DeleteNoteNotesNoteIdDeleteResponses, DeleteNoteNotesNoteIdDeleteErrors, ThrowOnError> => (options.client ?? client).delete<DeleteNoteNotesNoteIdDeleteResponses, DeleteNoteNotesNoteIdDeleteErrors, ThrowOnError>({
@@ -135,18 +164,6 @@ export const updateNoteNotesNoteIdPatch = <ThrowOnError extends boolean = false>
         'Content-Type': 'application/json',
         ...options.headers
     }
-});
-
-/**
- * Search Notes
- *
- * Search notes using either Pure Semantic Search or Hybrid Search (Vector + Full-Text Keyword).
- */
-export const searchNotesNotesSearchGet = <ThrowOnError extends boolean = false>(options: Options<SearchNotesNotesSearchGetData, ThrowOnError>): RequestResult<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError> => (options.client ?? client).get<SearchNotesNotesSearchGetResponses, SearchNotesNotesSearchGetErrors, ThrowOnError>({
-    responseType: 'json',
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/notes/search',
-    ...options
 });
 
 /**

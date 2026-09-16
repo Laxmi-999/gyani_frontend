@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, NotebookPen, Tag, X, Sparkles } from "lucide-react";
+import { Search, NotebookPen, Tag, X, Sparkles, Paperclip } from "lucide-react";
 import {
   useNotes,
   useSearchNotes,
@@ -14,6 +14,7 @@ import { NoteForm } from "./src/components/NoteForm";
 import { NoteCard } from "./src/components/NoteCard";
 import { getErrorMessage } from "./src/lib/error";
 import { FileAttachments } from "./src/components/FileAttachments";
+import { ChatInterface } from "./src/components/ChatInterface";
 
 export default function NotesPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthCheck();
@@ -21,9 +22,8 @@ export default function NotesPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchType, setSearchType] = useState<"hybrid" | "semantic">("hybrid");
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Debounce the search input — only fire the search 3s after typing stops.
-  // Clearing the box resets immediately so the default list comes back fast.
   useEffect(() => {
     const trimmed = search.trim();
 
@@ -42,14 +42,12 @@ export default function NotesPage() {
   const isSearchActive = debouncedSearch.length > 0;
   const isTyping = search.trim().length > 0 && debouncedSearch !== search.trim();
 
-  // Standard list — used for the default view and tag filtering
   const {
     data: defaultNotes,
     isLoading: isDefaultLoading,
     isError: isDefaultError,
   } = useNotes(selectedTag || undefined);
 
-  // Hybrid/semantic vector search — driven by the debounced value
   const {
     data: searchData,
     isLoading: isSearchLoading,
@@ -88,7 +86,7 @@ export default function NotesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 p-6 text-[#f2f2f0] lg:p-10">
-      {/* Header — full width */}
+      {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <NotebookPen className="h-5 w-5 text-[#e0a63a]" strokeWidth={2} />
@@ -100,7 +98,7 @@ export default function NotesPage() {
           )}
         </div>
         <p className="text-sm text-[#6b6b70]">
-          Capture ideas and keep them organized in one place.
+          Capture ideas, and ask Gyani when you need to find one again.
         </p>
       </div>
 
@@ -124,9 +122,10 @@ export default function NotesPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-[#6b6b70]">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[#6b6b70]">
+              <Paperclip className="h-3.5 w-3.5" />
               Attachments
-            </h2>
+            </div>
             <FileAttachments />
           </div>
         </div>
@@ -153,7 +152,6 @@ export default function NotesPage() {
               )}
             </div>
 
-            {/* Search mode switcher — only shown while actively searching */}
             {isSearchActive && (
               <div className="flex items-center gap-1 rounded-lg border border-[#242429] bg-[#131316] p-1">
                 <button
@@ -180,7 +178,6 @@ export default function NotesPage() {
               </div>
             )}
 
-            {/* Active tag pill indicator */}
             {selectedTag && (
               <div className="flex items-center gap-1.5 rounded-lg border border-[#e0a63a]/40 bg-[#e0a63a]/10 px-3 py-2 text-xs font-medium text-[#e0a63a]">
                 <Tag className="h-3.5 w-3.5" />
@@ -257,6 +254,51 @@ export default function NotesPage() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Floating chat launcher */}
+      <button
+        onClick={() => setIsChatOpen(true)}
+        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#e0a63a] px-5 py-3.5 text-sm font-medium text-[#141008] shadow-[0_8px_30px_-6px_rgba(224,166,58,0.5)] transition-all hover:scale-[1.03] active:scale-[0.98] ${
+          isChatOpen ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
+        }`}
+      >
+        <Sparkles className="h-4 w-4" />
+        Ask Gyani
+      </button>
+
+      {/* Docked chat panel */}
+      <div
+        className={`fixed inset-0 z-50 flex justify-end transition-opacity duration-300 ${
+          isChatOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={() => setIsChatOpen(false)}
+        />
+        <div
+          className={`relative flex h-full w-full max-w-md flex-col border-l border-[#242429] bg-[#0a0a0c] shadow-2xl transition-transform duration-300 ${
+            isChatOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between border-b border-[#242429] px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#e0a63a]" />
+              <h2 className="text-sm font-semibold text-[#f2f2f0]">Ask Gyani</h2>
+            </div>
+            <button
+              onClick={() => setIsChatOpen(false)}
+              className="rounded p-1.5 text-[#9a9a9f] hover:bg-[#18181c] hover:text-[#f2f2f0]"
+              aria-label="Close chat"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ChatInterface embedded />
+          </div>
         </div>
       </div>
     </div>

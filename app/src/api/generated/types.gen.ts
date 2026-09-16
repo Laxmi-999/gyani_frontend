@@ -49,6 +49,30 @@ export type BodyUploadFileFilesPost = {
 };
 
 /**
+ * ChatRequest
+ */
+export type ChatRequest = {
+    /**
+     * Question
+     */
+    question: string;
+};
+
+/**
+ * ChatResponse
+ */
+export type ChatResponse = {
+    /**
+     * Answer
+     */
+    answer: string;
+    /**
+     * Sources
+     */
+    Sources: Array<SourceNote>;
+};
+
+/**
  * FileOut
  */
 export type FileOut = {
@@ -251,6 +275,20 @@ export type SearchResponse = {
  * SearchType
  */
 export type SearchType = 'semantic' | 'hybrid';
+
+/**
+ * SourceNote
+ */
+export type SourceNote = {
+    /**
+     * Id
+     */
+    id: number;
+    /**
+     * Title
+     */
+    title: string;
+};
 
 /**
  * Token
@@ -498,6 +536,73 @@ export type GetTagsSummaryNotesTagsSummaryGetResponses = {
     200: unknown;
 };
 
+export type SearchNotesNotesSearchGetData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Q
+         *
+         * Search query string
+         */
+        q: string;
+        /**
+         * 'semantic' for pure vector, 'hybrid' for vector + keyword
+         */
+        type?: SearchType;
+        /**
+         * Limit
+         *
+         * Max results to return
+         */
+        limit?: number;
+    };
+    url: '/notes/search';
+};
+
+export type SearchNotesNotesSearchGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SearchNotesNotesSearchGetError = SearchNotesNotesSearchGetErrors[keyof SearchNotesNotesSearchGetErrors];
+
+export type SearchNotesNotesSearchGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SearchResponse;
+};
+
+export type SearchNotesNotesSearchGetResponse = SearchNotesNotesSearchGetResponses[keyof SearchNotesNotesSearchGetResponses];
+
+export type ChatWithNotesNotesChatPostData = {
+    body: ChatRequest;
+    path?: never;
+    query?: never;
+    url: '/notes/chat';
+};
+
+export type ChatWithNotesNotesChatPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChatWithNotesNotesChatPostError = ChatWithNotesNotesChatPostErrors[keyof ChatWithNotesNotesChatPostErrors];
+
+export type ChatWithNotesNotesChatPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: ChatResponse;
+};
+
+export type ChatWithNotesNotesChatPostResponse = ChatWithNotesNotesChatPostResponses[keyof ChatWithNotesNotesChatPostResponses];
+
 export type DeleteNoteNotesNoteIdDeleteData = {
     body?: never;
     path: {
@@ -587,48 +692,6 @@ export type UpdateNoteNotesNoteIdPatchResponses = {
 };
 
 export type UpdateNoteNotesNoteIdPatchResponse = UpdateNoteNotesNoteIdPatchResponses[keyof UpdateNoteNotesNoteIdPatchResponses];
-
-export type SearchNotesNotesSearchGetData = {
-    body?: never;
-    path?: never;
-    query: {
-        /**
-         * Q
-         *
-         * Search query string
-         */
-        q: string;
-        /**
-         * 'semantic' for pure vector, 'hybrid' for vector + keyword
-         */
-        type?: SearchType;
-        /**
-         * Limit
-         *
-         * Max results to return
-         */
-        limit?: number;
-    };
-    url: '/notes/search';
-};
-
-export type SearchNotesNotesSearchGetErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type SearchNotesNotesSearchGetError = SearchNotesNotesSearchGetErrors[keyof SearchNotesNotesSearchGetErrors];
-
-export type SearchNotesNotesSearchGetResponses = {
-    /**
-     * Successful Response
-     */
-    200: SearchResponse;
-};
-
-export type SearchNotesNotesSearchGetResponse = SearchNotesNotesSearchGetResponses[keyof SearchNotesNotesSearchGetResponses];
 
 export type ListFilesFilesGetData = {
     body?: never;

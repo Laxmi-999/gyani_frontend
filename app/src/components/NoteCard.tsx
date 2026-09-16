@@ -6,14 +6,9 @@ import {
   Trash2,
   Check,
   X,
-  User,
-  MapPin,
-  Building,
-  DollarSign,
-  Calendar,
-  Tag as TagIcon,
   FileText,
   Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import type { Note } from "../types/note";
 
@@ -30,41 +25,18 @@ interface NoteCardProps {
   activeTag?: string;
 }
 
-const entityBadgeConfig: Record<
-  string,
-  { bg: string; text: string; border: string; icon: React.ElementType }
-> = {
-  PERSON: {
-    bg: "bg-blue-950/40",
-    text: "text-blue-300",
-    border: "border-blue-500/30",
-    icon: User,
-  },
-  GPE: {
-    bg: "bg-emerald-950/40",
-    text: "text-emerald-300",
-    border: "border-emerald-500/30",
-    icon: MapPin,
-  },
-  ORG: {
-    bg: "bg-purple-950/40",
-    text: "text-purple-300",
-    border: "border-purple-500/30",
-    icon: Building,
-  },
-  MONEY: {
-    bg: "bg-amber-950/40",
-    text: "text-amber-300",
-    border: "border-amber-500/30",
-    icon: DollarSign,
-  },
-  DATE: {
-    bg: "bg-rose-950/40",
-    text: "text-rose-300",
-    border: "border-rose-500/30",
-    icon: Calendar,
-  },
+// Quieter than colored badges — a small dot carries the category,
+// text stays neutral so the card doesn't read as confetti.
+const entityDotColor: Record<string, string> = {
+  PERSON: "#60a5fa",
+  GPE: "#34d399",
+  ORG: "#c084fc",
+  MONEY: "#fbbf24",
+  DATE: "#fb7185",
 };
+
+const CONTENT_PREVIEW_LIMIT = 220;
+const ENTITY_PREVIEW_LIMIT = 4;
 
 export function NoteCard({
   note,
@@ -77,6 +49,8 @@ export function NoteCard({
 }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showAllEntities, setShowAllEntities] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tags, setTags] = useState(note.tags ?? "");
@@ -87,6 +61,24 @@ export function NoteCard({
         .map((t) => t.trim())
         .filter(Boolean)
     : [];
+
+  const flatEntities = note.entities
+    ? Object.entries(note.entities).flatMap(([category, items]) =>
+        Array.isArray(items)
+          ? items.map((value) => ({ category, value }))
+          : []
+      )
+    : [];
+  const visibleEntities = showAllEntities
+    ? flatEntities
+    : flatEntities.slice(0, ENTITY_PREVIEW_LIMIT);
+  const hiddenEntityCount = flatEntities.length - visibleEntities.length;
+
+  const isLongContent = note.content.length > CONTENT_PREVIEW_LIMIT;
+  const displayContent =
+    isExpanded || !isLongContent
+      ? note.content
+      : note.content.slice(0, CONTENT_PREVIEW_LIMIT).trimEnd() + "…";
 
   function handleSave() {
     if (!title.trim() || !content.trim()) return;
@@ -107,7 +99,7 @@ export function NoteCard({
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-3 rounded-lg border border-[#e0a63a]/40 bg-[#131316] p-4 shadow-[0_0_0_1px_rgba(224,166,58,0.08)]">
+      <div className="flex flex-col gap-3 rounded-lg border border-[#e0a63a]/40 bg-[#131316] p-4">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -146,15 +138,13 @@ export function NoteCard({
   }
 
   return (
-    <div className="group flex flex-col gap-2 rounded-lg border border-[#242429] bg-[#131316] p-4 transition-colors hover:border-[#33333a]">
+    <div className="group flex flex-col gap-2.5 rounded-lg border border-[#242429] bg-[#131316] p-4 transition-colors hover:border-[#33333a]">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex min-w-0 items-center gap-1.5">
           {note.source_file_id && (
-            <FileText
-              className="h-3.5 w-3.5 shrink-0 text-[#e0a63a]"
-            />
+            <FileText className="h-3.5 w-3.5 shrink-0 text-[#e0a63a]" />
           )}
-          <h3 className="font-semibold leading-tight text-[#f2f2f0] truncate">
+          <h3 className="truncate font-semibold leading-tight text-[#f2f2f0]">
             {note.title}
           </h3>
           {score !== undefined && (
@@ -209,13 +199,29 @@ export function NoteCard({
         )}
       </div>
 
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#9a9a9f]">
-        {note.content}
-      </p>
+      {/* Content — truncated by default so a full OCR'd document doesn't take over the grid */}
+      <div className="flex flex-col gap-1">
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#9a9a9f]">
+          {displayContent}
+        </p>
+        {isLongContent && (
+          <button
+            onClick={() => setIsExpanded((v) => !v)}
+            className="flex w-fit items-center gap-0.5 text-xs font-medium text-[#e0a63a] hover:text-[#f0b64a]"
+          >
+            {isExpanded ? "Show less" : "Show more"}
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+        )}
+      </div>
 
-      {/* Manual Tags */}
+      {/* Manual tags */}
       {tagList.length > 0 && (
-        <div className="mt-1 flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           {tagList.map((tag) => {
             const isActive = activeTag === tag;
             return (
@@ -233,39 +239,37 @@ export function NoteCard({
         </div>
       )}
 
-      {/* Extracted Entities Badges */}
-      {note.entities && Object.keys(note.entities).length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5 border-t border-[#242429] pt-2.5">
-          {Object.entries(note.entities).map(([category, items]) => {
-            if (!Array.isArray(items) || items.length === 0) return null;
-
-            const config = entityBadgeConfig[category] || {
-              bg: "bg-[#0a0a0c]",
-              text: "text-[#9a9a9f]",
-              border: "border-[#242429]",
-              icon: TagIcon,
-            };
-            const Icon = config.icon;
-
-            return items.map((item, idx) => {
-              const isActive = activeTag === item;
-              return (
-                <button
-                  key={`${category}-${idx}`}
-                  onClick={() => onTagClick?.(item)}
-                  className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 ${
-                    config.bg
-                  } ${config.text} ${config.border} ${
-                    isActive ? "ring-1 ring-[#e0a63a]" : ""
-                  }`}
-                  title={`Filter by ${category}: ${item}`}
-                >
-                  <Icon className="h-3 w-3" />
-                  <span>{item}</span>
-                </button>
-              );
-            });
+      {/* Extracted entities — dot-marker style, collapsed past a handful */}
+      {flatEntities.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-[#242429] pt-2.5">
+          {visibleEntities.map(({ category, value }, idx) => {
+            const isActive = activeTag === value;
+            const dot = entityDotColor[category] ?? "#6b6b70";
+            return (
+              <button
+                key={`${category}-${idx}`}
+                onClick={() => onTagClick?.(value)}
+                className={`inline-flex items-center gap-1.5 rounded-full border border-[#242429] bg-[#0a0a0c] px-2 py-0.5 text-[11px] text-[#9a9a9f] transition-colors hover:border-[#33333a] hover:text-[#f2f2f0] ${
+                  isActive ? "border-[#e0a63a] text-[#e0a63a]" : ""
+                }`}
+                title={category}
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ background: dot }}
+                />
+                {value}
+              </button>
+            );
           })}
+          {hiddenEntityCount > 0 && (
+            <button
+              onClick={() => setShowAllEntities(true)}
+              className="text-[11px] font-medium text-[#6b6b70] hover:text-[#e0a63a]"
+            >
+              +{hiddenEntityCount} more
+            </button>
+          )}
         </div>
       )}
     </div>
