@@ -15,6 +15,7 @@ import type { Note } from "../types/note";
 interface NoteCardProps {
   note: Note;
   score?: number;
+  defaultExpanded?: boolean;
   onDelete: (id: number) => void;
   onUpdate: (
     id: number,
@@ -41,6 +42,7 @@ const ENTITY_PREVIEW_LIMIT = 4;
 export function NoteCard({
   note,
   score,
+  defaultExpanded = false,
   onDelete,
   onUpdate,
   isUpdating,
@@ -49,11 +51,11 @@ export function NoteCard({
 }: NoteCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [showAllEntities, setShowAllEntities] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tags, setTags] = useState(note.tags ?? "");
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const tagList = note.tags
     ? note.tags
