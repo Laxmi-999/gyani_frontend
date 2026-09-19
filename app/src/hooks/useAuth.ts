@@ -36,19 +36,21 @@ export function useAuthCheck() {
     const publicPaths = ["/login", "/register"];
     const isPublicPath = publicPaths.includes(pathname);
 
-    if (!token && !isPublicPath) {
-      // Not logged in -> redirect to login
-      setIsAuthenticated(false);
-      router.replace("/login");
-    } else if (token && isPublicPath) {
-      // Logged in & visiting login/register -> redirect to dashboard
-      setIsAuthenticated(true);
-      router.replace("/");
-    } else {
-      setIsAuthenticated(!!token);
-    }
+    const timer = setTimeout(() => {
+      if (!token && !isPublicPath) {
+        setIsAuthenticated(false);
+        router.replace("/login");
+      } else if (token && isPublicPath) {
+        setIsAuthenticated(true);
+        router.replace("/");
+      } else {
+        setIsAuthenticated(!!token);
+      }
 
-    setIsLoading(false);
+      setIsLoading(false);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [pathname, router]);
 
   return { isAuthenticated, isLoading };

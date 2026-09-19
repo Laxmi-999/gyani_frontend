@@ -2,9 +2,10 @@
 
 import { Modal } from "./Modal";
 import { NoteCard } from "./NoteCard";
+import type { Note } from "../types/note";
 
 interface NoteDetailModalProps {
-  note: any | null;
+  note: Note | null;
   onClose: () => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number, data: { title: string; content: string; tags?: string }) => void;

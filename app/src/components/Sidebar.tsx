@@ -2,14 +2,16 @@
 
 import { useMemo } from "react";
 import { Search, NotebookPen, Plus, Paperclip, FileText, Sparkles } from "lucide-react";
+import type { FileOut } from "../api/generated/types.gen";
+import type { Note } from "../types/note";
 
 type SidebarItem =
-  | { kind: "note"; id: string; title: string; raw: any }
-  | { kind: "file"; id: string; title: string; raw: any };
+  | { kind: "note"; id: string; title: string; raw: Note }
+  | { kind: "file"; id: string; title: string; raw: FileOut };
 
 interface SidebarProps {
-  notes: any[];
-  files: any[];
+  notes: Note[];
+  files: FileOut[];
   isLoading: boolean;
   search: string;
   onSearchChange: (value: string) => void;
@@ -17,8 +19,8 @@ interface SidebarProps {
   onSearchTypeChange: (type: "hybrid" | "semantic") => void;
   isSearchActive: boolean;
   selectedNoteId: number | null;
-  onSelectNote: (note: any) => void;
-  onSelectFile: (file: any) => void;
+  onSelectNote: (note: Note) => void;
+  onSelectFile: (file: FileOut) => void;
   onNewNote: () => void;
   onUploadFile: () => void;
 }
@@ -48,7 +50,7 @@ export function Sidebar({
     const fileItems: SidebarItem[] = files.map((f) => ({
       kind: "file",
       id: `file-${f.id}`,
-      title: f.filename || f.original_filename || f.name || "Untitled file",
+      title: f.filename || "Untitled file",
       raw: f,
     }));
     return [...noteItems, ...fileItems];

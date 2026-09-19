@@ -117,7 +117,7 @@ export function FileAttachments() {
 
       {isError && (
         <p className="rounded-lg border border-[#3a2323] bg-[#1a1414] px-4 py-3 text-sm text-[#ff6b6f]">
-          Couldn't load attachments.
+          Couldn&apos;t load attachments.
         </p>
       )}
 

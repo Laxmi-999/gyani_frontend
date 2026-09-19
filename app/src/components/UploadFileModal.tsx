@@ -18,9 +18,7 @@ export function UploadFileModal({ isOpen, onClose }: UploadFileModalProps) {
   const handleUpload = () => {
     if (!file) return;
     uploadMutation.mutate(
-      // NOTE: adjust the "file" key below if your generated
-      // UploadFileFilesPostData body expects a different field name.
-      { body: { file } as any },
+      { body: { file } },
       {
         onSuccess: () => {
           setFile(null);

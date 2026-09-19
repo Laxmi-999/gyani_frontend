@@ -11,6 +11,8 @@ import { NoteFormModal } from "./src/components/NoteFormModal";
 import { NoteDetailModal } from "./src/components/NoteDetailModal";
 import { FileDetailModal } from "./src/components/FilesDetailModal";
 import { UploadFileModal } from "./src/components/UploadFileModal";
+import type { FileOut } from "./src/api/generated/types.gen";
+import type { Note } from "./src/types/note";
 
 export default function NotesPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuthCheck();
@@ -21,16 +23,12 @@ export default function NotesPage() {
 
   const [isNoteFormOpen, setIsNoteFormOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<any | null>(null);
-  const [selectedFile, setSelectedFile] = useState<any | null>(null);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedFile, setSelectedFile] = useState<FileOut | null>(null);
 
   useEffect(() => {
     const trimmed = search.trim();
-    if (trimmed === "") {
-      setDebouncedSearch("");
-      return;
-    }
-    const timer = setTimeout(() => setDebouncedSearch(trimmed), 3000);
+    const timer = setTimeout(() => setDebouncedSearch(trimmed), trimmed === "" ? 0 : 3000);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -45,7 +43,18 @@ export default function NotesPage() {
   const updateMutation = useUpdateNote();
   const deleteFileMutation = useDeleteFile();
 
-  const notes = isSearchActive ? searchData?.results ?? [] : defaultNotes ?? [];
+  const notes: Note[] = isSearchActive
+    ? (searchData?.results ?? []).map((result) => ({
+        id: result.id,
+        title: result.title ?? "Untitled note",
+        content: result.content ?? "",
+        tags: null,
+        entities: null,
+        source_file_id: null,
+        created_at: "",
+        updated_at: "",
+      }))
+    : defaultNotes ?? [];
   const isSidebarLoading = isSearchActive ? isSearchLoading : isNotesLoading || isFilesLoading;
 
   const handleTagSelect = (tag: string) => {
@@ -117,7 +126,7 @@ export default function NotesPage() {
         }}
         onUpdate={(id, data) => {
           updateMutation.mutate({ path: { note_id: id }, body: data });
-          setSelectedNote((current: any) => (current?.id === id ? { ...current, ...data } : current));
+          setSelectedNote((current) => (current?.id === id ? { ...current, ...data } : current));
         }}
         isUpdating={updateMutation.isPending}
         activeTag={selectedTag || undefined}
@@ -131,7 +140,7 @@ export default function NotesPage() {
           deleteFileMutation.mutate({ path: { file_id: id } });
           setSelectedFile(null);
         }}
-        onDownload={(id) => {
+        onDownload={() => {
           // TODO: port your existing download logic from the old
           // FileAttachments component here (blob fetch + save-as).
         }}

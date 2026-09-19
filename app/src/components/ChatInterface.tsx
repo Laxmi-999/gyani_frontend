@@ -32,10 +32,10 @@ export function ChatInterface({ embedded = false }: ChatInterfaceProps) {
     chatMutation.mutate(
       { body: { question: trimmed } },
       {
-        onSuccess: (data: any) => {
+        onSuccess: (data) => {
           setMessages((prev) => [
             ...prev,
-            { role: "assistant", content: data?.answer ?? "No answer returned.", sources: data?.sources ?? [] },
+            { role: "assistant", content: data?.answer ?? "No answer returned.", sources: data?.Sources ?? [] },
           ]);
         },
         onError: () => {

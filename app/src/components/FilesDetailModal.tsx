@@ -2,9 +2,10 @@
 
 import { Download, Trash2 } from "lucide-react";
 import { Modal } from "./Modal";
+import type { FileOut } from "../api/generated/types.gen";
 
 interface FileDetailModalProps {
-  file: any | null;
+  file: FileOut | null;
   onClose: () => void;
   onDelete: (id: number) => void;
   onDownload: (id: number) => void;
@@ -17,11 +18,11 @@ export function FileDetailModal({ file, onClose, onDelete, onDownload }: FileDet
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-sm font-medium text-[#f2f2f0]">
-              {file.filename || file.original_filename || file.name}
+              {file.filename}
             </p>
-            {file.status && (
+            {file.ocr_status && (
               <span className="mt-1 inline-flex items-center rounded-full border border-[#2f5c3a] bg-[#0f2417] px-2 py-0.5 text-[11px] font-medium text-[#4ade80]">
-                {file.status}
+                {file.ocr_status}
               </span>
             )}
           </div>
