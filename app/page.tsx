@@ -34,10 +34,18 @@ export default function NotesPage() {
 
   const isSearchActive = debouncedSearch.length > 0;
 
-  const { data: defaultNotes, isLoading: isNotesLoading } = useNotes(selectedTag || undefined);
+
   const { data: searchData, isLoading: isSearchLoading } = useSearchNotes(debouncedSearch, searchType);
   const { data: files, isLoading: isFilesLoading } = useFiles();
 
+     const hasFilesInProgress = files?.some(
+    (f) => f.ocr_status === "pending" || f.ocr_status === "processing"
+  ) ?? false;
+
+const { data: defaultNotes, isLoading: isNotesLoading } = useNotes(
+    selectedTag || undefined,
+    hasFilesInProgress
+  );
   const createMutation = useCreateNote();
   const deleteMutation = useDeleteNote();
   const updateMutation = useUpdateNote();

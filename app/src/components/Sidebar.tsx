@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { Search, NotebookPen, Plus, Paperclip, FileText, Sparkles } from "lucide-react";
 import type { FileOut } from "../api/generated/types.gen";
 import type { Note } from "../types/note";
+import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+
 
 type SidebarItem =
   | { kind: "note"; id: string; title: string; raw: Note }
@@ -23,6 +25,20 @@ interface SidebarProps {
   onSelectFile: (file: FileOut) => void;
   onNewNote: () => void;
   onUploadFile: () => void;
+
+}
+
+function FileStatusBadge({ status }: { status: FileOut["ocr_status"] }) {
+  if (status === "completed") {
+    return <CheckCircle2 className="h-3 w-3 shrink-0 text-[#4ade80]" />;
+  }
+  if (status === "pending" || status === "processing") {
+    return <Loader2 className="h-3 w-3 shrink-0 animate-spin text-[#e0a63a]" />;
+  }
+  if (status === "failed") {
+    return <AlertCircle className="h-3 w-3 shrink-0 text-[#ff6b6f]" />;
+  }
+  return null;
 }
 
 export function Sidebar({
@@ -132,18 +148,19 @@ export function Sidebar({
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => (item.kind === "note" ? onSelectNote(item.raw) : onSelectFile(item.raw))}
-                  className={`flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors ${
-                    isActive ? "bg-[#18181c] text-[#f2f2f0]" : "text-[#9a9a9f] hover:bg-[#131316] hover:text-[#f2f2f0]"
-                  }`}
-                >
-                  {item.kind === "note" ? (
-                    <FileText className="h-3.5 w-3.5 shrink-0 text-[#6b6b70]" />
-                  ) : (
-                    <Paperclip className="h-3.5 w-3.5 shrink-0 text-[#6b6b70]" />
-                  )}
-                  <span className="truncate">{item.title}</span>
-                </button>
+                onClick={() => (item.kind === "note" ? onSelectNote(item.raw) : onSelectFile(item.raw))}
+                className={`flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors ${
+                  isActive ? "bg-[#18181c] text-[#f2f2f0]" : "text-[#9a9a9f] hover:bg-[#131316] hover:text-[#f2f2f0]"
+                }`}
+              >
+                {item.kind === "note" ? (
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-[#6b6b70]" />
+                ) : (
+                  <Paperclip className="h-3.5 w-3.5 shrink-0 text-[#6b6b70]" />
+                )}
+                <span className="flex-1 truncate">{item.title}</span>
+                {item.kind === "file" && <FileStatusBadge status={item.raw.ocr_status} />}
+              </button>
               </li>
             );
           })}

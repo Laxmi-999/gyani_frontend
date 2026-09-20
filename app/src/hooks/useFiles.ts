@@ -11,6 +11,13 @@ import type { FileOut } from "../api/generated/types.gen";
 export function useFiles() {
   return useQuery({
     ...listFilesFilesGetOptions(),
+    refetchInterval: (query) => {
+      const files = query.state.data;
+      const hasInProgress = files?.some(
+        (f) => f.ocr_status === "pending" || f.ocr_status === "processing"
+      );
+      return hasInProgress ? 2000 : false;
+    },
   });
 }
 

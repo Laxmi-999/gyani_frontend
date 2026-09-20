@@ -9,9 +9,10 @@ import {
   updateNoteNotesNoteIdPatchMutation 
 } from "../api/generated/@tanstack/react-query.gen";
 
-export function useNotes(search?: string) {
+export function useNotes(search?: string, pollWhileFilesProcessing?: boolean) {
   return useQuery({
     ...listNotesNotesGetOptions({ query: search ? { q: search } : {} }),
+    refetchInterval: pollWhileFilesProcessing ? 2000 : false,
   });
 }
 
